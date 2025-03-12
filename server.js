@@ -6,30 +6,22 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 
+// Enable CORS
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+});
+
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// WebSocket handling for Edge Functions
+// WebSocket server setup
 const wss = new WebSocket.Server({ 
-    noServer: true,
+    server,
+    path: '/ws',
     perMessageDeflate: false
-});
-
-// Handle upgrade events
-server.on('upgrade', async (request, socket, head) => {
-    if (!request.url.startsWith('/ws')) {
-        socket.destroy();
-        return;
-    }
-
-    try {
-        wss.handleUpgrade(request, socket, head, (ws) => {
-            wss.emit('connection', ws, request);
-        });
-    } catch (err) {
-        console.error('WebSocket upgrade error:', err);
-        socket.destroy();
-    }
 });
 
 // Store connected clients
@@ -389,37 +381,8 @@ function broadcast(message) {
     });
 }
 
-// Start server
-const PORT = process.env.PORT || 3000;
-const HOST = '0.0.0.0'; // Listen on all network interfaces
-
-server.listen(PORT, HOST, () => {
-    // Get local IP address
-    const networkInterfaces = require('os').networkInterfaces();
-    let localIP = 'localhost';
-    
-    // Find the first non-internal IPv4 address
-    for (const name of Object.keys(networkInterfaces)) {
-        for (const interface of networkInterfaces[name]) {
-            if (interface.internal === false && interface.family === 'IPv4') {
-                localIP = interface.address;
-                break;
-            }
-        }
-        if (localIP !== 'localhost') break;
-    }
-    
-    console.log('\n=== Server Started ===');
-    console.log(`Local URL: http://localhost:${PORT}`);
-    console.log(`Network URL: http://${localIP}:${PORT}`);
-    console.log('\nAccess these pages:');
-    console.log(`Order submission (for players): http://${localIP}:${PORT}/order-submit.html`);
-    console.log(`Admin view: http://${localIP}:${PORT}/admin-view.html?type=admin`);
-    console.log(`Public view: http://${localIP}:${PORT}/public-view.html?type=public`);
-    console.log('\nMake sure your phone is on the same WiFi network as this computer.');
-    console.log('If connection fails, try:');
-    console.log('1. Using the Network URL instead of localhost');
-    console.log('2. Making sure your phone is on the same WiFi network');
-    console.log('3. Checking if your computer\'s WiFi is working');
-    console.log('========================\n');
+// Start the server
+const PORT = process.env.PORT || 3001;
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 }); 
