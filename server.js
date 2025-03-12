@@ -6,12 +6,30 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 
-// Configure WebSocket server with proper settings
+// Handle WebSocket upgrade requests
+app.use('/ws', (req, res) => {
+    if (req.headers.upgrade && req.headers.upgrade.toLowerCase() === 'websocket') {
+        res.end();
+        return;
+    }
+    res.status(426).send('Upgrade Required');
+});
+
+// Configure WebSocket server
 const wss = new WebSocket.Server({ 
-    server,
-    path: '/ws',
-    clientTracking: true,
-    perMessageDeflate: false
+    noServer: true,
+    path: '/ws'
+});
+
+// Handle upgrade events
+server.on('upgrade', (request, socket, head) => {
+    if (request.url.startsWith('/ws')) {
+        wss.handleUpgrade(request, socket, head, (ws) => {
+            wss.emit('connection', ws, request);
+        });
+    } else {
+        socket.destroy();
+    }
 });
 
 // Serve static files from the public directory
