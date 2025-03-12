@@ -1,27 +1,38 @@
 // Socket.IO client configuration
 const SOCKET_SERVER_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3001'
-    : 'https://greatgriftoff-websocket-production.up.railway.app'; // Updated with Railway URL
+    ? 'ws://localhost:3001/ws'
+    : 'wss://greatgriftoff-websocket-production.up.railway.app/ws'; // Updated with Railway URL
 
 function createSocketConnection(type = 'public') {
-    const socket = io(SOCKET_SERVER_URL, {
-        query: { type },
-        reconnectionAttempts: 5,
-        reconnectionDelay: 2000,
-        transports: ['websocket']
-    });
+    const socket = new WebSocket(`${SOCKET_SERVER_URL}?type=${type}`);
 
-    socket.on('connect', () => {
-        console.log('Connected to Socket.IO server');
-    });
+    socket.onopen = () => {
+        console.log('Connected to WebSocket server');
+        // Request initial data
+        socket.send(JSON.stringify({ type: 'getInitialData' }));
+    };
 
-    socket.on('connect_error', (error) => {
-        console.error('Socket.IO connection error:', error);
-    });
+    socket.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            handleWebSocketMessage(data);
+        } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
+        }
+    };
 
-    socket.on('disconnect', (reason) => {
-        console.log('Disconnected from Socket.IO server:', reason);
-    });
+    socket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+    };
+
+    socket.onclose = (event) => {
+        console.log('Disconnected from WebSocket server:', event.reason);
+        // Attempt to reconnect after a delay
+        setTimeout(() => {
+            console.log('Attempting to reconnect...');
+            createSocketConnection(type);
+        }, 5000);
+    };
 
     return socket;
 } 
