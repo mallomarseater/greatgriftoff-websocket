@@ -10,11 +10,16 @@
             "use": "@vercel/static"
         }
     ],
+    "functions": {
+        "server.js": {
+            "memory": 1024,
+            "maxDuration": 10
+        }
+    },
     "routes": [
         {
             "src": "/ws",
-            "dest": "server.js",
-            "check": true,
+            "continue": true,
             "headers": {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",

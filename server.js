@@ -6,34 +6,31 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 
-// Handle WebSocket upgrade requests
-app.use('/ws', (req, res) => {
-    if (req.headers.upgrade && req.headers.upgrade.toLowerCase() === 'websocket') {
-        res.end();
-        return;
-    }
-    res.status(426).send('Upgrade Required');
-});
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Configure WebSocket server
+// WebSocket handling for Edge Functions
 const wss = new WebSocket.Server({ 
     noServer: true,
-    path: '/ws'
+    perMessageDeflate: false
 });
 
 // Handle upgrade events
-server.on('upgrade', (request, socket, head) => {
-    if (request.url.startsWith('/ws')) {
+server.on('upgrade', async (request, socket, head) => {
+    if (!request.url.startsWith('/ws')) {
+        socket.destroy();
+        return;
+    }
+
+    try {
         wss.handleUpgrade(request, socket, head, (ws) => {
             wss.emit('connection', ws, request);
         });
-    } else {
+    } catch (err) {
+        console.error('WebSocket upgrade error:', err);
         socket.destroy();
     }
 });
-
-// Serve static files from the public directory
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Store connected clients
 const clients = {
