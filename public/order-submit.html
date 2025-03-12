@@ -39,124 +39,88 @@
         <div id="status" style="margin-top: 20px;"></div>
     </div>
 
+    <!-- Hidden elements to store data -->
+    <div id="dataStorage" style="display: none;"></div>
+    
+    <!-- Load Socket.IO client -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <!-- Load JavaScript files -->
+    <script src="js/socket-client.js"></script>
+    <script src="js/order-submit.js"></script>
+
     <script>
-        let ws = null;
+        // Game state
         let gameState = {
+            phase: 'Markets Closed',
+            timeRemaining: 60,
             funds: [],
-            phase: 'Markets Closed'
+            players: []
         };
 
-        // Initialize WebSocket connection
-        function initializeWebSocket() {
-            if (ws) {
-                ws.close();
-            }
+        // Socket.IO connection
+        let socket = null;
 
-            ws = new WebSocket('ws://' + window.location.hostname + ':3000?type=player');
-            
-            ws.onopen = () => {
-                console.log('Connected to server');
-                updateStatus('Connected to server');
-                // Request initial data
-                ws.send(JSON.stringify({ type: 'getInitialData' }));
-            };
-            
-            ws.onclose = () => {
-                console.log('Disconnected from server');
-                updateStatus('Disconnected from server');
-                // Try to reconnect after 5 seconds
-                setTimeout(initializeWebSocket, 5000);
-            };
-            
-            ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
-                updateStatus('Connection error');
-            };
-            
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                console.log('Received:', data);
-                
-                switch(data.type) {
-                    case 'initialData':
-                        gameState.funds = data.funds;
-                        gameState.phase = data.phase;
-                        updateFundsList();
-                        break;
-                    case 'fundsUpdate':
-                        gameState.funds = data.funds;
-                        updateFundsList();
-                        break;
-                    case 'phaseUpdate':
-                        gameState.phase = data.phase;
-                        break;
-                    case 'orderResponse':
-                        handleOrderResponse(data);
-                        break;
-                }
-            };
-        }
+        // Initialize Socket.IO connection
+        function initializeSocket() {
+            socket = createSocketConnection('player');
 
-        // Update funds list in dropdown
-        function updateFundsList() {
-            const fundSelect = document.getElementById('fundSelect');
-            fundSelect.innerHTML = gameState.funds.map(fund => 
-                `<option value="${fund.id}">${fund.name} ($${fund.price.toFixed(2)})</option>`
-            ).join('');
+            socket.on('initialData', (data) => {
+                gameState = data;
+                updateDisplay();
+            });
+
+            socket.on('fundsUpdate', (data) => {
+                gameState.funds = data.funds;
+                updateFundsList();
+            });
+
+            socket.on('phaseUpdate', (data) => {
+                gameState.phase = data.phase;
+                gameState.timeRemaining = data.timeRemaining;
+                updatePhaseDisplay();
+            });
+
+            socket.on('marketEvent', (data) => {
+                addEvent({
+                    title: data.event,
+                    description: `Impact on ${data.fundId}`,
+                    impact: data.newPrice
+                });
+            });
         }
 
         // Submit order
-        function submitOrder() {
-            const playerName = document.getElementById('playerName').value.trim();
-            const orderType = document.getElementById('orderType').value;
+        function submitOrder(event) {
+            event.preventDefault();
+            
+            const playerName = document.getElementById('playerName').value;
             const fundId = document.getElementById('fundSelect').value;
             const shares = parseInt(document.getElementById('shares').value);
+            const orderType = document.getElementById('orderType').value;
             
-            if (!playerName || !orderType || !fundId || !shares) {
-                updateStatus('Please fill in all fields', 'error');
+            if (!playerName || !fundId || isNaN(shares) || shares <= 0) {
+                alert('Please fill in all fields correctly');
                 return;
             }
             
             const order = {
-                playerName: playerName,
-                orderType: orderType,
-                fundId: fundId,
-                shares: shares
+                playerName,
+                fundId,
+                shares,
+                orderType
             };
             
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    type: 'order',
-                    order: order
-                }));
-                updateStatus('Order submitted, waiting for confirmation...');
-            } else {
-                updateStatus('Not connected to server', 'error');
-            }
+            socket.emit('order', { order });
+            
+            // Clear form
+            document.getElementById('shares').value = '';
+            
+            // Show confirmation
+            alert('Order submitted successfully!');
         }
 
-        // Handle order response
-        function handleOrderResponse(data) {
-            if (data.success) {
-                updateStatus('Order submitted successfully!', 'success');
-                // Clear form
-                document.getElementById('shares').value = '1';
-            } else {
-                updateStatus(data.message || 'Order submission failed', 'error');
-            }
-        }
-
-        // Update status message
-        function updateStatus(message, type = 'info') {
-            const status = document.getElementById('status');
-            status.textContent = message;
-            status.className = 'status-' + type;
-        }
-
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeWebSocket();
-        });
+        // Initialize when the page loads
+        window.addEventListener('load', initializeSocket);
     </script>
 </body>
 </html> 
