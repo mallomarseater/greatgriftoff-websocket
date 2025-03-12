@@ -1,0 +1,395 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+.panel {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+button {
+    padding: 8px 15px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+input {
+    padding: 8px;
+    margin-right: 10px;
+}
+
+select {
+    padding: 8px;
+    margin-right: 10px;
+}
+
+.log {
+    height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+/* Fund performance colors */
+.fund-item {
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 4px;
+    transition: background-color 0.5s;
+}
+
+.fund-up-strong {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.fund-up {
+    background-color: #8BC34A;
+    color: white;
+}
+
+.fund-neutral {
+    background-color: #F5F5F5;
+    color: #333;
+}
+
+.fund-down {
+    background-color: #FF9800;
+    color: white;
+}
+
+.fund-down-strong {
+    background-color: #F44336;
+    color: white;
+}
+
+.fund-frozen {
+    background-color: #B0BEC5;
+    color: white;
+    font-style: italic;
+}
+
+/* Visual indicator for price changes */
+.up-arrow {
+    color: green;
+}
+
+.down-arrow {
+    color: red;
+}
+
+.notice {
+    background-color: #e3f2fd;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
+.market-notice {
+    background-color: #fff3cd;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-style: italic;
+    color: #856404;
+}
+
+.game-mode {
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.setup-mode {
+    background-color: #3f51b5;
+    color: white;
+}
+
+.running-mode {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.ended-mode {
+    background-color: #f44336;
+    color: white;
+}
+
+/* Market status indicator */
+.market-status {
+    font-size: 0.8em;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-left: 10px;
+}
+
+.market-status.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.market-status.frozen {
+    background-color: #90A4AE;
+    color: white;
+}
+
+/* Phase styling */
+.phase-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.phase-label {
+    font-weight: bold;
+}
+
+.phase-display {
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-left: 5px;
+}
+
+.buying-phase {
+    background-color: #2196F3;
+    color: white;
+}
+
+.selling-phase {
+    background-color: #FF9800;
+    color: white;
+}
+
+.closed-phase {
+    background-color: #9E9E9E;
+    color: white;
+}
+
+.phase-timer {
+    font-weight: bold;
+}
+
+.phase-button {
+    background-color: #673AB7;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+}
+
+.phase-button:hover {
+    background-color: #5E35B1;
+}
+
+.phase-notice {
+    font-size: 0.9em;
+    color: #757575;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+.phase-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.closed-button {
+    background-color: #9E9E9E;
+    color: white;
+}
+
+.buying-button {
+    background-color: #2196F3;
+    color: white;
+}
+
+.selling-button {
+    background-color: #FF9800;
+    color: white;
+}
+
+.active-phase {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5), 0 0 0 6px currentColor;
+}
+
+/* Transaction Controls */
+.transaction-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.process-button {
+    background-color: #FFC107;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+}
+
+.process-button:hover {
+    background-color: #FFA000;
+}
+
+.process-button-all {
+    background-color: #FF5722;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+}
+
+.process-button-all:hover {
+    background-color: #E64A19;
+}
+
+/* Pending transactions */
+.pending-container {
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.pending-transaction {
+    padding: 5px;
+    margin-bottom: 5px;
+    border-left: 4px solid #ddd;
+    padding-left: 10px;
+}
+
+.buy-transaction {
+    border-left-color: #2196F3;
+    background-color: #E3F2FD;
+}
+
+.sell-transaction {
+    border-left-color: #FF9800;
+    background-color: #FFF3E0;
+}
+
+.no-pending {
+    font-style: italic;
+    color: #757575;
+    text-align: center;
+    padding: 10px;
+}
+
+.event-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.event-buttons h3 {
+    grid-column: 1 / -1;
+    margin-bottom: 5px;
+    margin-top: 15px;
+}
+
+.event-button {
+    padding: 8px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.event-button.positive {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.event-button.negative {
+    background-color: #F44336;
+    color: white;
+}
+
+.event-button:hover {
+    opacity: 0.9;
+}
+
+/* event display */
+.market-event-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 800px;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    color: white;
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.market-event {
+    text-align: center;
+}
+
+.market-event h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #FFD700;
+}
+
+.event-content {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.event-content img {
+    max-width: 300px;
+    max-height: 300px;
+    margin-right: 20px;
+    border-radius: 5px;
+}
+
+.event-content p {
+    text-align: left;
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+.event-impact {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.positive-effect {
+    color: #4CAF50;
+}
+
+.negative-effect {
+    color: #F44336;
+}
