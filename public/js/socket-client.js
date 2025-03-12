@@ -1,7 +1,7 @@
 // Socket.IO client configuration
 const SOCKET_SERVER_URL = window.location.hostname === 'localhost' 
     ? 'ws://localhost:3001/ws'
-    : 'wss://greatgriftoff-websocket-production.up.railway.app/ws'; // Updated with Railway URL
+    : 'wss://greatgriftoff-websocket-production.up.railway.app/ws';
 
 function createSocketConnection(type = 'public') {
     const socket = new WebSocket(`${SOCKET_SERVER_URL}?type=${type}`);
