@@ -5,10 +5,17 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
 
-// Serve static files from the current directory
-app.use(express.static(__dirname));
+// Configure WebSocket server with proper settings
+const wss = new WebSocket.Server({ 
+    server,
+    path: '/ws',
+    clientTracking: true,
+    perMessageDeflate: false
+});
+
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Store connected clients
 const clients = {
@@ -26,7 +33,7 @@ let gameState = {
         { id: 'checkpoint', name: 'Checkpoint Therapeutics', price: 50, trend: -0.01, volatility: 0.1 },
         { id: 'boeing', name: 'Boeing Co.', price: 200, trend: -0.005, volatility: 0.05 },
         { id: 'luigi', name: 'Luigi Mangione Legal Fund', price: 75, trend: 0.015, volatility: 0.08 },
-        { id: 'taylor', name: 'Taylor Swift\'s Eras Tour Treasury', price: 150, trend: 0.03, volatility: 0.05 }
+        { id: 'taylor', name: "Taylor Swift's Eras Tour Treasury", price: 150, trend: 0.03, volatility: 0.05 }
     ],
     pendingOrders: [],
     players: [],
