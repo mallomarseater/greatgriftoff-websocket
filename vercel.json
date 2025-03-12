@@ -40,6 +40,18 @@
             "dest": "/images/$1"
         },
         {
+            "src": "/admin",
+            "dest": "/admin-view.html"
+        },
+        {
+            "src": "/order",
+            "dest": "/order-submit.html"
+        },
+        {
+            "src": "^/$",
+            "dest": "/public-view.html"
+        },
+        {
             "src": "/(.*)",
             "dest": "/$1"
         }
