@@ -49,13 +49,15 @@
         // Initialize WebSocket connection
         function initializeWebSocket() {
             if (ws) {
+                console.log('WebSocket already initialized, closing existing connection');
                 ws.close();
             }
 
-            ws = new WebSocket('ws://' + window.location.hostname + ':3000?type=player');
+            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+            ws = new WebSocket(protocol + window.location.host + '/ws?type=player');
             
             ws.onopen = () => {
-                console.log('Connected to server');
+                console.log('Player WebSocket connected successfully');
                 updateStatus('Connected to server');
                 // Request initial data
                 ws.send(JSON.stringify({ type: 'getInitialData' }));

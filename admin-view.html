@@ -283,7 +283,8 @@
                 ws.close();
             }
 
-            ws = new WebSocket('ws://' + window.location.hostname + ':3000?type=admin');
+            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+            ws = new WebSocket(protocol + window.location.host + '/ws?type=admin');
             
             // Handle WebSocket connection
             ws.onopen = () => {
