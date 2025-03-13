@@ -38,7 +38,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 const wss = new WebSocket.Server({ 
     server,
     path: '/ws',
-    perMessageDeflate: false
+    perMessageDeflate: false,
+    host: '0.0.0.0'  // Explicitly bind to all interfaces
 });
 
 // Store connected clients
