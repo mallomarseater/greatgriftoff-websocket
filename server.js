@@ -1,10 +1,22 @@
 const express = require('express');
-const http = require('http');
+const https = require('https');
 const WebSocket = require('ws');
 const path = require('path');
 
 const app = express();
-const server = http.createServer(app);
+let server;
+
+// Check if we're running on Railway
+if (process.env.RAILWAY) {
+    // Railway provides SSL certificates automatically
+    server = https.createServer({
+        // Railway automatically handles SSL certificates
+        // No need to specify cert and key
+    }, app);
+} else {
+    // For local development, use HTTP
+    server = require('http').createServer(app);
+}
 
 // Enable CORS
 app.use((req, res, next) => {
@@ -12,6 +24,11 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     next();
+});
+
+// Add a health check endpoint
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
 });
 
 // Serve static files from the public directory
@@ -382,7 +399,25 @@ function broadcast(message) {
 }
 
 // Start the server
-const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
+const PORT = process.env.PORT || 8080;
+const HOST = '0.0.0.0'; // Listen on all interfaces
+
+server.on('error', (error) => {
+    console.error('Server error:', error);
+});
+
+server.listen(PORT, HOST, () => {
     console.log(`Server is running on port ${PORT}`);
+    console.log(`WebSocket server is running on ws://0.0.0.0:${PORT}/ws (accessible from any interface)`);
+    console.log('Environment:', process.env.NODE_ENV);
+    console.log('Railway:', process.env.RAILWAY ? 'Yes' : 'No');
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 }); 
