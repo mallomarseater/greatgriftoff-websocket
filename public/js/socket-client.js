@@ -1,7 +1,7 @@
 // Socket.IO client configuration
 const SOCKET_SERVER_URL = window.location.hostname === 'localhost' 
     ? (window.location.protocol === 'https:' ? 'wss://localhost:8080/ws' : 'ws://localhost:8080/ws')
-    : 'wss://websocket.greatgriftoff.xyz/ws';
+    : 'wss://websocket.greatgriftoff.xyz:8080/ws';
 
 let socket = null;
 let pollingInterval = null;
@@ -199,7 +199,7 @@ function createSocketConnection(type = 'public') {
     }
 
     return socket;
-}
+} 
 
 function startPolling(type) {
     console.log('Starting polling fallback...');
