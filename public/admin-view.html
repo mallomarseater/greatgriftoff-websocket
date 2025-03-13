@@ -244,36 +244,14 @@
     <script src="js/data-sharing.js"></script>
     <script src="js/socket-client.js"></script>
     <script>
-        // Add QR code updating function
-        document.getElementById('updateQrBtn').addEventListener('click', function() {
-            const buyUrl = document.getElementById('buyFormUrl').value.trim();
-            const sellUrl = document.getElementById('sellFormUrl').value.trim();
-            
-            // Store in localStorage for public view
-            if (buyUrl) {
-                localStorage.setItem('buyFormUrl', buyUrl);
-            }
-            
-            if (sellUrl) {
-                localStorage.setItem('sellFormUrl', sellUrl);
-            }
-            
-            alert('QR codes updated on public view!');
-        });
-        
-        // Modify startGame to enable data sharing
-        const originalStartGame = startGame;
-        startGame = function() {
-            originalStartGame.apply(this, arguments);
-            
-            // Start data sharing when game starts
-            if (gameMode === GAME_MODE.RUNNING) {
-                startDataSharing();
-            } else if (gameMode === GAME_MODE.ENDED) {
-                stopDataSharing();
-            }
+        // Game state
+        let gameState = {
+            phase: 'Markets Closed',
+            timeRemaining: 60,
+            funds: [],
+            players: []
         };
-        
+
         // Initialize WebSocket connection
         const socket = createSocketConnection('admin');
         
@@ -301,6 +279,38 @@
                     break;
             }
         }
+
+        // Add QR code updating function
+        document.getElementById('updateQrBtn').addEventListener('click', function() {
+            const buyUrl = document.getElementById('buyFormUrl').value.trim();
+            const sellUrl = document.getElementById('sellFormUrl').value.trim();
+            
+            if (buyUrl) localStorage.setItem('buyFormUrl', buyUrl);
+            if (sellUrl) localStorage.setItem('sellFormUrl', sellUrl);
+            
+            alert('QR codes updated on public view!');
+        });
+
+        // Add window focus handler to reconnect if needed
+        window.onfocus = () => {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                console.log('Window focused, checking connection...');
+                socket = createSocketConnection('admin');
+            }
+        };
+
+        // Modify startGame to enable data sharing
+        const originalStartGame = startGame;
+        startGame = function() {
+            originalStartGame.apply(this, arguments);
+            
+            // Start data sharing when game starts
+            if (gameMode === GAME_MODE.RUNNING) {
+                startDataSharing();
+            } else if (gameMode === GAME_MODE.ENDED) {
+                stopDataSharing();
+            }
+        };
 
         // Update phase information
         function updatePhaseInfo(phase, timeRemaining) {
@@ -546,12 +556,6 @@
             }
         }
 
-        // Initialize WebSocket when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('Initializing WebSocket connection...');
-            initializeWebSocket();
-        });
-
         // Add to log function
         function addToLog(message) {
             const log = document.getElementById('log');
@@ -679,8 +683,6 @@
             updatePlayerSelects();
         }
     </script>
-
-<script src="js/events.js"></script>
-
+    <script src="js/events.js"></script>
 </body>
 </html>
