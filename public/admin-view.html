@@ -573,6 +573,8 @@
                 }));
             } else {
                 console.warn('WebSocket not connected, cannot update phase');
+                // Attempt to reconnect
+                socket = createSocketConnection('admin');
             }
         }
 
