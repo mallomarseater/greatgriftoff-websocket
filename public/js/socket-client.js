@@ -25,7 +25,12 @@ function createSocketConnection(type = 'public') {
     console.log('Client type:', type);
     
     try {
-        socket = new WebSocket(`${SOCKET_SERVER_URL}?type=${type}`);
+        // Ensure we're using the correct protocol based on the current page
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = SOCKET_SERVER_URL.replace(/^ws[s]?:/, protocol);
+        console.log('Final WebSocket URL:', wsUrl);
+        
+        socket = new WebSocket(`${wsUrl}?type=${type}`);
         console.log('WebSocket object created, readyState:', socket.readyState);
 
         socket.onopen = () => {
@@ -124,7 +129,11 @@ function startPolling(type) {
 
 async function fetchData(type) {
     try {
-        const pollingUrl = SOCKET_SERVER_URL.replace('ws', 'https').replace(':8080', '');
+        // Ensure we're using HTTPS for polling
+        const pollingUrl = SOCKET_SERVER_URL
+            .replace(/^ws[s]?:/, 'https:')
+            .replace(':8080', '');
+        console.log('Polling URL:', pollingUrl);
         const response = await fetch(`${pollingUrl}/poll?type=${type}`);
         const data = await response.json();
         console.log('Received polling data:', data);
