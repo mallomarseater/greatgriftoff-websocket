@@ -23,24 +23,37 @@
             "headers": {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Accept"
+                "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+                "Access-Control-Allow-Credentials": "true"
             }
         },
         {
             "src": "/admin",
-            "dest": "/public/admin-view.html"
+            "dest": "/public/admin-view.html",
+            "headers": {
+                "Cache-Control": "no-cache"
+            }
         },
         {
             "src": "/order",
-            "dest": "/public/order-submit.html"
+            "dest": "/public/order-submit.html",
+            "headers": {
+                "Cache-Control": "no-cache"
+            }
         },
         {
             "src": "/",
-            "dest": "/public/public-view.html"
+            "dest": "/public/public-view.html",
+            "headers": {
+                "Cache-Control": "no-cache"
+            }
         },
         {
             "src": "/(.*)",
-            "dest": "/public/$1"
+            "dest": "/public/$1",
+            "headers": {
+                "Cache-Control": "public, max-age=0, must-revalidate"
+            }
         }
     ],
     "env": {
