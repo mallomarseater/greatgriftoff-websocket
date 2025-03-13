@@ -25,7 +25,9 @@
                 "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
                 "Access-Control-Allow-Headers": "Content-Type",
                 "Upgrade": "websocket",
-                "Connection": "Upgrade"
+                "Connection": "Upgrade",
+                "Sec-WebSocket-Version": "13",
+                "Sec-WebSocket-Key": "$http_sec_websocket_key"
             }
         },
         {
