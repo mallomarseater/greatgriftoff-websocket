@@ -1,7 +1,7 @@
 // Socket.IO client configuration
 const SOCKET_SERVER_URL = window.location.hostname === 'localhost' 
     ? 'ws://localhost:8080/ws'
-    : 'wss://websocket.greatgriftoff.xyz/ws';
+    : 'wss://greatgriftoff-websocket-production.up.railway.app/ws';
 
 function createSocketConnection(type = 'public') {
     console.log('Initializing WebSocket connection...');
