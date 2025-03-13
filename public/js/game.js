@@ -59,8 +59,8 @@ function startGame() {
     document.getElementById('phasePanel').style.display = 'block';
     
     // Notify server
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
             type: 'startGame'
         }));
     }
@@ -79,8 +79,8 @@ function resetGame() {
     document.getElementById('phasePanel').style.display = 'none';
     
     // Notify server
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
             type: 'resetGame'
         }));
     }
@@ -130,8 +130,8 @@ function endGame() {
     document.getElementById('gameMode').className = 'game-mode ended-mode';
     
     // Notify server
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
             type: 'endGame'
         }));
     }
