@@ -238,7 +238,7 @@
         };
 
         // Initialize WebSocket connection
-        let socket = createSocketConnection('public');
+        let socket = null;
         
         // Handle WebSocket messages
         function handleWebSocketMessage(data) {
@@ -469,6 +469,7 @@
         // Initialize when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Initializing WebSocket connection...');
+            socket = createSocketConnection('public');
         });
 
         // Add window focus handler to reconnect if needed
