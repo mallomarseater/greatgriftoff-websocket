@@ -1,10 +1,13 @@
 // Socket.IO client configuration
 const SOCKET_SERVER_URL = window.location.hostname === 'localhost' 
     ? 'ws://localhost:8080/ws'
-    : `wss://${window.location.host}/ws`;
+    : 'wss://greatgriftoff.xyz/ws';
 
 let socket = null;
 let pollingInterval = null;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
+const RECONNECT_DELAY = 5000;
 
 function createSocketConnection(type = 'public') {
     console.log('Initializing WebSocket connection...');
@@ -19,6 +22,7 @@ function createSocketConnection(type = 'public') {
         socket.onopen = () => {
             console.log('Connected to WebSocket server successfully');
             console.log('WebSocket readyState:', socket.readyState);
+            reconnectAttempts = 0; // Reset reconnect attempts on successful connection
             // Request initial data
             socket.send(JSON.stringify({ type: 'getInitialData' }));
             // Clear polling if it was active
@@ -44,8 +48,17 @@ function createSocketConnection(type = 'public') {
                 console.error('WebSocket readyState:', error.target.readyState);
             }
             console.error('Full error object:', JSON.stringify(error, null, 2));
-            // Fallback to polling if WebSocket fails
-            startPolling(type);
+            
+            if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                reconnectAttempts++;
+                console.log(`Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+                setTimeout(() => {
+                    createSocketConnection(type);
+                }, RECONNECT_DELAY);
+            } else {
+                console.log('Max reconnection attempts reached, falling back to polling');
+                startPolling(type);
+            }
         };
 
         socket.onclose = (event) => {
@@ -53,13 +66,30 @@ function createSocketConnection(type = 'public') {
             console.log('Close event:', event);
             console.log('Reason:', event.reason);
             console.log('Code:', event.code);
-            // Fallback to polling if WebSocket disconnects
-            startPolling(type);
+            
+            if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                reconnectAttempts++;
+                console.log(`Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+                setTimeout(() => {
+                    createSocketConnection(type);
+                }, RECONNECT_DELAY);
+            } else {
+                console.log('Max reconnection attempts reached, falling back to polling');
+                startPolling(type);
+            }
         };
     } catch (error) {
         console.error('Failed to create WebSocket connection:', error);
-        // Fallback to polling if WebSocket creation fails
-        startPolling(type);
+        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+            reconnectAttempts++;
+            console.log(`Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+            setTimeout(() => {
+                createSocketConnection(type);
+            }, RECONNECT_DELAY);
+        } else {
+            console.log('Max reconnection attempts reached, falling back to polling');
+            startPolling(type);
+        }
     }
 
     return socket;
