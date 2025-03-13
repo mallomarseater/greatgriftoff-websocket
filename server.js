@@ -38,16 +38,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // WebSocket server setup
 const wss = new WebSocket.Server({ 
-    server,
+    server,  // Use the existing server instance
     path: '/ws',
     perMessageDeflate: false,
-    host: '0.0.0.0',  // Explicitly bind to all interfaces
-    // Use secure WebSocket when running on Railway
-    ...(isRailway ? { 
-        server: https.createServer({
-            // Railway automatically handles SSL certificates
-        }, app)
-    } : {})
+    host: '0.0.0.0'  // Explicitly bind to all interfaces
 });
 
 // Store connected clients
