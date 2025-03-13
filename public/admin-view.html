@@ -235,6 +235,7 @@
     </div>
     
     <!-- Load JavaScript files -->
+    <script src="js/socket-client.js"></script>
     <script src="js/game.js"></script>
     <script src="js/funds.js"></script>
     <script src="js/players.js"></script>
@@ -242,7 +243,6 @@
     <script src="js/phases.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/data-sharing.js"></script>
-    <script src="js/socket-client.js"></script>
     <script>
         // Game state
         let gameState = {
@@ -257,7 +257,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log("Document loaded, initializing admin view");
             
-            // Initialize WebSocket connection using socket client
+            // Initialize WebSocket connection
             socket = createSocketConnection('admin');
             
             // Initialize the game

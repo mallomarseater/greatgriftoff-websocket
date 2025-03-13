@@ -1,7 +1,7 @@
 // Socket.IO client configuration
 const SOCKET_SERVER_URL = window.location.hostname === 'localhost' 
     ? (window.location.protocol === 'https:' ? 'wss://localhost:8080/ws' : 'ws://localhost:8080/ws')
-    : 'wss://websocket.greatgriftoff.xyz:8080/ws';
+    : 'wss://greatgriftoff-websocket-production.up.railway.app/ws';
 
 let socket = null;
 let pollingInterval = null;
@@ -84,9 +84,8 @@ function createSocketConnection(type = 'public') {
     console.log('Environment:', process.env.NODE_ENV);
     
     try {
-        // Ensure we're using WSS when the page is loaded over HTTPS
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = SOCKET_SERVER_URL.replace(/^ws[s]?:/, protocol);
+        // Use the configured URL directly since it's already set up for the correct protocol
+        const wsUrl = SOCKET_SERVER_URL;
         console.log('Final WebSocket URL:', wsUrl);
         
         socket = new WebSocket(`${wsUrl}?type=${type}`);
