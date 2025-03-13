@@ -393,7 +393,8 @@ function broadcast(message) {
 }
 
 // Start the server
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+    console.log(`WebSocket server is running on ws://localhost:${PORT}/ws`);
 }); 
