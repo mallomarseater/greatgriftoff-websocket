@@ -41,7 +41,13 @@ const wss = new WebSocket.Server({
     server,
     path: '/ws',
     perMessageDeflate: false,
-    host: '0.0.0.0'  // Explicitly bind to all interfaces
+    host: '0.0.0.0',  // Explicitly bind to all interfaces
+    // Use secure WebSocket when running on Railway
+    ...(isRailway ? { 
+        server: https.createServer({
+            // Railway automatically handles SSL certificates
+        }, app)
+    } : {})
 });
 
 // Store connected clients
@@ -410,8 +416,9 @@ server.on('error', (error) => {
 });
 
 server.listen(PORT, HOST, () => {
+    const protocol = isRailway ? 'wss' : 'ws';
     console.log(`Server is running on port ${PORT}`);
-    console.log(`WebSocket server is running on ws://0.0.0.0:${PORT}/ws (accessible from any interface)`);
+    console.log(`WebSocket server is running on ${protocol}://0.0.0.0:${PORT}/ws (accessible from any interface)`);
     console.log('Environment:', process.env.NODE_ENV);
     console.log('Railway:', isRailway ? 'Yes' : 'No');
     console.log('Environment Variables:', {
