@@ -254,10 +254,10 @@
     };
 
     // Socket.IO connection
-    let socket = null;
+    let socket;
 
     // Initialize Socket.IO connection
-    function initializeSocket() {
+    function initializeWebSocket() {
         socket = createSocketConnection('admin');
 
         socket.on('initialData', (data) => {
@@ -321,7 +321,7 @@
     }
 
     // Initialize when the page loads
-    window.addEventListener('load', initializeSocket);
+    window.addEventListener('load', initializeWebSocket);
 
     // Add QR code updating function
     document.getElementById('updateQrBtn').addEventListener('click', function() {
