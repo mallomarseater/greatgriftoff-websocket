@@ -29,31 +29,27 @@
         },
         {
             "src": "/admin",
-            "dest": "/public/admin-view.html",
-            "headers": {
-                "Cache-Control": "no-cache"
-            }
+            "dest": "/public/admin-view.html"
         },
         {
             "src": "/order",
-            "dest": "/public/order-submit.html",
-            "headers": {
-                "Cache-Control": "no-cache"
-            }
+            "dest": "/public/order-submit.html"
         },
         {
             "src": "/",
-            "dest": "/public/public-view.html",
-            "headers": {
-                "Cache-Control": "no-cache"
-            }
+            "dest": "/public/public-view.html"
         },
         {
-            "src": "/(.*)",
-            "dest": "/public/$1",
-            "headers": {
-                "Cache-Control": "public, max-age=0, must-revalidate"
-            }
+            "src": "/js/(.*)",
+            "dest": "/public/js/$1"
+        },
+        {
+            "src": "/css/(.*)",
+            "dest": "/public/css/$1"
+        },
+        {
+            "src": "/images/(.*)",
+            "dest": "/public/images/$1"
         }
     ],
     "env": {
