@@ -39,88 +39,110 @@
         <div id="status" style="margin-top: 20px;"></div>
     </div>
 
-    <!-- Hidden elements to store data -->
-    <div id="dataStorage" style="display: none;"></div>
-    
-    <!-- Load Socket.IO client -->
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <!-- Load JavaScript files -->
     <script src="js/socket-client.js"></script>
-    <script src="js/order-submit.js"></script>
-
     <script>
         // Game state
         let gameState = {
-            phase: 'Markets Closed',
-            timeRemaining: 60,
             funds: [],
-            players: []
+            phase: 'Markets Closed'
         };
 
-        // Socket.IO connection
-        let socket = null;
+        // Initialize WebSocket connection
+        let socket = createSocketConnection('player');
+        
+        // Handle WebSocket messages
+        function handleWebSocketMessage(data) {
+            switch(data.type) {
+                case 'initialData':
+                    gameState = data;
+                    updateUI();
+                    break;
+                case 'fundsUpdate':
+                    gameState.funds = data.funds;
+                    updateFundsList();
+                    break;
+                case 'phaseUpdate':
+                    gameState.phase = data.phase;
+                    break;
+                case 'orderResponse':
+                    handleOrderResponse(data);
+                    break;
+            }
+        }
 
-        // Initialize Socket.IO connection
-        function initializeSocket() {
-            socket = createSocketConnection('player');
+        // Add window focus handler to reconnect if needed
+        window.onfocus = () => {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                console.log('Window focused, checking connection...');
+                socket = createSocketConnection('player');
+            }
+        };
 
-            socket.on('initialData', (data) => {
-                gameState = data;
-                updateDisplay();
-            });
+        // Update UI with current game state
+        function updateUI() {
+            updateFundsList();
+        }
 
-            socket.on('fundsUpdate', (data) => {
-                gameState.funds = data.funds;
-                updateFundsList();
-            });
-
-            socket.on('phaseUpdate', (data) => {
-                gameState.phase = data.phase;
-                gameState.timeRemaining = data.timeRemaining;
-                updatePhaseDisplay();
-            });
-
-            socket.on('marketEvent', (data) => {
-                addEvent({
-                    title: data.event,
-                    description: `Impact on ${data.fundId}`,
-                    impact: data.newPrice
-                });
-            });
+        // Update funds list in dropdown
+        function updateFundsList() {
+            const fundSelect = document.getElementById('fundSelect');
+            fundSelect.innerHTML = gameState.funds.map(fund => 
+                `<option value="${fund.id}">${fund.name} ($${fund.price.toFixed(2)})</option>`
+            ).join('');
         }
 
         // Submit order
-        function submitOrder(event) {
-            event.preventDefault();
-            
-            const playerName = document.getElementById('playerName').value;
+        function submitOrder() {
+            const playerName = document.getElementById('playerName').value.trim();
+            const orderType = document.getElementById('orderType').value;
             const fundId = document.getElementById('fundSelect').value;
             const shares = parseInt(document.getElementById('shares').value);
-            const orderType = document.getElementById('orderType').value;
             
-            if (!playerName || !fundId || isNaN(shares) || shares <= 0) {
-                alert('Please fill in all fields correctly');
+            if (!playerName || !orderType || !fundId || !shares) {
+                updateStatus('Please fill in all fields', 'error');
                 return;
             }
             
             const order = {
-                playerName,
-                fundId,
-                shares,
-                orderType
+                playerName: playerName,
+                orderType: orderType,
+                fundId: fundId,
+                shares: shares
             };
             
-            socket.emit('order', { order });
-            
-            // Clear form
-            document.getElementById('shares').value = '';
-            
-            // Show confirmation
-            alert('Order submitted successfully!');
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    type: 'order',
+                    order: order
+                }));
+                updateStatus('Order submitted, waiting for confirmation...');
+            } else {
+                updateStatus('Not connected to server', 'error');
+            }
         }
 
-        // Initialize when the page loads
-        window.addEventListener('load', initializeSocket);
+        // Handle order response
+        function handleOrderResponse(data) {
+            if (data.success) {
+                updateStatus('Order submitted successfully!', 'success');
+                // Clear form
+                document.getElementById('shares').value = '1';
+            } else {
+                updateStatus(data.message || 'Order submission failed', 'error');
+            }
+        }
+
+        // Update status message
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status-' + type;
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUI();
+        });
     </script>
 </body>
 </html> 

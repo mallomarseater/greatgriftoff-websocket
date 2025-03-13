@@ -19,12 +19,28 @@
     "routes": [
         {
             "src": "/ws",
-            "continue": true,
+            "dest": "https://greatgriftoff-websocket-production.up.railway.app/ws",
             "headers": {
                 "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Accept"
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Upgrade": "websocket",
+                "Connection": "Upgrade",
+                "Sec-WebSocket-Version": "13",
+                "Sec-WebSocket-Key": "$http_sec_websocket_key"
             }
+        },
+        {
+            "src": "/js/(.*)",
+            "dest": "/public/js/$1"
+        },
+        {
+            "src": "/css/(.*)",
+            "dest": "/public/css/$1"
+        },
+        {
+            "src": "/images/(.*)",
+            "dest": "/public/images/$1"
         },
         {
             "src": "/admin",
@@ -35,15 +51,8 @@
             "dest": "/public/order-submit.html"
         },
         {
-            "handle": "filesystem"
-        },
-        {
             "src": "/",
             "dest": "/public/public-view.html"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/public/$1"
         }
     ],
     "env": {

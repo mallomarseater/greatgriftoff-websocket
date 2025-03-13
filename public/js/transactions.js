@@ -24,8 +24,8 @@ function buyShares() {
     console.log('Sending buy order:', order);
     
     // Send order to server
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
             type: 'newOrder',  // Changed from 'order' to 'newOrder' to match server expectation
             order: order
         }));
@@ -65,8 +65,8 @@ function sellShares() {
     console.log('Sending sell order:', order);
     
     // Send order to server
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
             type: 'newOrder',  // Changed from 'order' to 'newOrder' to match server expectation
             order: order
         }));
@@ -173,8 +173,8 @@ function processOrder(playerName, orderType, fundId, shares) {
     updatePlayersList();
     
     // Broadcast player update to all clients
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
             type: 'playerUpdate',
             player: player
         }));
