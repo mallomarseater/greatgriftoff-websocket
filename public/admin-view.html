@@ -253,7 +253,7 @@
         };
 
         // Initialize WebSocket connection
-        const socket = createSocketConnection('admin');
+        let socket = createSocketConnection('admin');
         
         // Handle WebSocket messages
         function handleWebSocketMessage(data) {

@@ -41,14 +41,14 @@
 
     <script src="js/socket-client.js"></script>
     <script>
-        let ws = null;
+        // Game state
         let gameState = {
             funds: [],
             phase: 'Markets Closed'
         };
 
         // Initialize WebSocket connection
-        const socket = createSocketConnection('player');
+        let socket = createSocketConnection('player');
         
         // Handle WebSocket messages
         function handleWebSocketMessage(data) {
@@ -69,6 +69,14 @@
                     break;
             }
         }
+
+        // Add window focus handler to reconnect if needed
+        window.onfocus = () => {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                console.log('Window focused, checking connection...');
+                socket = createSocketConnection('player');
+            }
+        };
 
         // Update UI with current game state
         function updateUI() {
@@ -102,8 +110,8 @@
                 shares: shares
             };
             
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
                     type: 'order',
                     order: order
                 }));

@@ -229,11 +229,20 @@
     <!-- Load JavaScript files -->
     <script src="js/socket-client.js"></script>
     <script>
+        // Game state
+        let gameState = {
+            phase: 'Markets Closed',
+            timeRemaining: 60,
+            funds: [],
+            players: []
+        };
+
         // Initialize WebSocket connection
-        const socket = createSocketConnection('public');
+        let socket = createSocketConnection('public');
         
         // Handle WebSocket messages
         function handleWebSocketMessage(data) {
+            console.log('Received WebSocket message:', data);
             switch(data.type) {
                 case 'initialData':
                     gameState = data;
@@ -260,14 +269,6 @@
             updatePlayersList();
             updatePhaseDisplay();
         }
-
-        // Game state
-        let gameState = {
-            phase: 'Markets Closed',
-            timeRemaining: 60,
-            funds: [],
-            players: []
-        };
 
         // Keep track of recent events
         let recentEvents = [];
