@@ -199,7 +199,7 @@ function createSocketConnection(type = 'public') {
     }
 
     return socket;
-}
+} 
 
 function startPolling(type) {
     console.log('Starting polling fallback...');

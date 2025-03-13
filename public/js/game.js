@@ -25,9 +25,6 @@ let gameInterval = null;
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Document loaded, initializing game");
     
-    // Initialize WebSocket connection
-    socket = createSocketConnection('admin');
-    
     // Wait for WebSocket connection before initializing phases
     onConnectionReady(() => {
         console.log("WebSocket connected, initializing game phases");
