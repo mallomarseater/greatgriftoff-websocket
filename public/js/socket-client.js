@@ -1,7 +1,7 @@
 // Socket.IO client configuration
 const SOCKET_SERVER_URL = window.location.hostname === 'localhost' 
     ? 'ws://localhost:8080/ws'
-    : 'wss://greatgriftoff-websocket-production.up.railway.app/ws';
+    : 'wss://websocket.greatgriftoff.xyz/ws';
 
 function createSocketConnection(type = 'public') {
     console.log('Initializing WebSocket connection to:', SOCKET_SERVER_URL);
@@ -24,6 +24,10 @@ function createSocketConnection(type = 'public') {
 
     socket.onerror = (error) => {
         console.error('WebSocket error:', error);
+        // Log more details about the error
+        if (error.target && error.target.readyState) {
+            console.error('WebSocket readyState:', error.target.readyState);
+        }
     };
 
     socket.onclose = (event) => {
