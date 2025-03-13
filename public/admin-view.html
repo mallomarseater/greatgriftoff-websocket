@@ -249,11 +249,15 @@
             phase: 'Markets Closed',
             timeRemaining: 60,
             funds: [],
-            players: []
+            players: [],
+            pendingOrders: []
         };
 
-        // Initialize WebSocket connection
-        let socket = createSocketConnection('admin');
+        // Initialize WebSocket connection when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Admin page loaded, initializing WebSocket...');
+            socket = createSocketConnection('admin');
+        });
         
         // Handle WebSocket messages
         function handleWebSocketMessage(data) {
