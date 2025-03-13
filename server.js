@@ -7,7 +7,9 @@ const app = express();
 let server;
 
 // Check if we're running on Railway
-if (process.env.RAILWAY) {
+const isRailway = process.env.RAILWAY || process.env.RAILWAY_ENVIRONMENT;
+
+if (isRailway) {
     // Railway provides SSL certificates automatically
     server = https.createServer({
         // Railway automatically handles SSL certificates
@@ -411,7 +413,12 @@ server.listen(PORT, HOST, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`WebSocket server is running on ws://0.0.0.0:${PORT}/ws (accessible from any interface)`);
     console.log('Environment:', process.env.NODE_ENV);
-    console.log('Railway:', process.env.RAILWAY ? 'Yes' : 'No');
+    console.log('Railway:', isRailway ? 'Yes' : 'No');
+    console.log('Environment Variables:', {
+        RAILWAY: process.env.RAILWAY,
+        RAILWAY_ENVIRONMENT: process.env.RAILWAY_ENVIRONMENT,
+        NODE_ENV: process.env.NODE_ENV
+    });
 });
 
 // Handle uncaught exceptions
