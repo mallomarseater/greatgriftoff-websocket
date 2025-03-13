@@ -1,7 +1,7 @@
 // Socket.IO client configuration
 const SOCKET_SERVER_URL = window.location.hostname === 'localhost' 
     ? 'ws://localhost:8080/ws'
-    : `wss://${window.location.host}/ws`;
+    : 'wss://greatgriftoff-websocket-production.up.railway.app/ws';
 
 let socket = null;
 let pollingInterval = null;
