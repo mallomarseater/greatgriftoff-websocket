@@ -228,14 +228,14 @@
     
     <!-- Load JavaScript files -->
     <script src="js/socket-client.js"></script>
-    <script>
-        // Game state
-        let gameState = {
-            phase: 'Markets Closed',
-            timeRemaining: 60,
-            funds: [],
-            players: []
-        };
+<script>
+    // Game state
+    let gameState = {
+        phase: 'Markets Closed',
+        timeRemaining: 60,
+        funds: [],
+        players: []
+    };
 
         // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
@@ -250,16 +250,16 @@
                 initializePhases();
                 console.log("Public view initialized");
             });
-        });
+    });
 
-        // Add window focus handler to reconnect if needed
-        window.onfocus = () => {
+    // Add window focus handler to reconnect if needed
+    window.onfocus = () => {
             if (!socket || socket.readyState !== WebSocket.OPEN) {
-                console.log('Window focused, checking connection...');
+            console.log('Window focused, checking connection...');
                 socket = createSocketConnection('public');
-            }
-        };
-    </script>
+        }
+    };
+</script>
 </body>
 </html>
 

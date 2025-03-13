@@ -57,6 +57,15 @@ function initializePhases() {
     updatePhase(PHASES.CLOSED, 60);
 }
 
+function updatePhase(phase, timeRemaining) {
+    console.log('Updating phase:', { phase, timeRemaining });
+    sendMessage({
+        type: 'updatePhase',
+        phase: phase,
+        timeRemaining: timeRemaining
+    });
+}
+
 // Export functions
 window.initializePhases = initializePhases;
 window.PHASES = PHASES;

@@ -74,8 +74,8 @@ function triggerMarketEvent(eventId) {
     const event = marketEvents[eventId];
     
     // Send the event to the server via WebSocket
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
             type: 'marketEvent',
             eventType: eventId,
             fundId: event.fundId
