@@ -84,9 +84,8 @@ function createSocketConnection(type = 'public') {
     console.log('Environment:', process.env.NODE_ENV);
     
     try {
-        // Ensure we're using WSS when the page is loaded over HTTPS
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = SOCKET_SERVER_URL.replace(/^ws[s]?:/, protocol);
+        // Use the configured URL directly since it's already set up for the correct protocol
+        const wsUrl = SOCKET_SERVER_URL;
         console.log('Final WebSocket URL:', wsUrl);
         
         socket = new WebSocket(`${wsUrl}?type=${type}`);
