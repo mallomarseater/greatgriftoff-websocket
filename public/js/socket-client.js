@@ -8,6 +8,15 @@ let pollingInterval = null;
 let reconnectAttempts = 0;
 const MAX_RECONNECT_ATTEMPTS = 5;
 const RECONNECT_DELAY = 5000;
+let connectionReadyCallbacks = [];
+
+function onConnectionReady(callback) {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        callback();
+    } else {
+        connectionReadyCallbacks.push(callback);
+    }
+}
 
 function createSocketConnection(type = 'public') {
     console.log('Initializing WebSocket connection...');
@@ -30,6 +39,9 @@ function createSocketConnection(type = 'public') {
                 clearInterval(pollingInterval);
                 pollingInterval = null;
             }
+            // Call all pending ready callbacks
+            connectionReadyCallbacks.forEach(callback => callback());
+            connectionReadyCallbacks = [];
         };
 
         socket.onmessage = (event) => {
@@ -112,7 +124,8 @@ function startPolling(type) {
 
 async function fetchData(type) {
     try {
-        const response = await fetch(`${SOCKET_SERVER_URL.replace('ws', 'https')}/poll?type=${type}`);
+        const pollingUrl = SOCKET_SERVER_URL.replace('ws', 'https').replace(':8080', '');
+        const response = await fetch(`${pollingUrl}/poll?type=${type}`);
         const data = await response.json();
         console.log('Received polling data:', data);
         handleWebSocketMessage(data);
@@ -121,4 +134,6 @@ async function fetchData(type) {
     }
 }
 
-// ... existing code ... 
+// Export functions
+window.createSocketConnection = createSocketConnection;
+window.onConnectionReady = onConnectionReady; 

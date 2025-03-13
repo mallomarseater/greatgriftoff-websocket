@@ -25,23 +25,29 @@ let gameInterval = null;
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Document loaded, initializing game");
     
-    // Initialize the game
-    initializePhases();
+    // Initialize WebSocket connection
+    socket = createSocketConnection('admin');
     
-    // Make sure buy and sell buttons are enabled during setup
-    document.getElementById('buyButton').disabled = false;
-    document.getElementById('sellButton').disabled = false;
-    
-    // Hide market status initially
-    document.getElementById('marketStatus').style.display = 'none';
-    
-    // Add event listeners
-    document.getElementById('startButton').addEventListener('click', startGame);
-    document.getElementById('addPlayerButton').addEventListener('click', addPlayer);
-    document.getElementById('buyButton').addEventListener('click', buyShares);
-    document.getElementById('sellButton').addEventListener('click', sellShares);
-    
-    console.log("Game initialized in setup mode");
+    // Wait for WebSocket connection before initializing phases
+    onConnectionReady(() => {
+        console.log("WebSocket connected, initializing game phases");
+        initializePhases();
+        
+        // Make sure buy and sell buttons are enabled during setup
+        document.getElementById('buyButton').disabled = false;
+        document.getElementById('sellButton').disabled = false;
+        
+        // Hide market status initially
+        document.getElementById('marketStatus').style.display = 'none';
+        
+        // Add event listeners
+        document.getElementById('startButton').addEventListener('click', startGame);
+        document.getElementById('addPlayerButton').addEventListener('click', addPlayer);
+        document.getElementById('buyButton').addEventListener('click', buyShares);
+        document.getElementById('sellButton').addEventListener('click', sellShares);
+        
+        console.log("Game initialized in setup mode");
+    });
 });
 
 function startGame() {

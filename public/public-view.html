@@ -244,10 +244,12 @@
             // Initialize WebSocket connection using socket client
             socket = createSocketConnection('public');
             
-            // Initialize the game
-            initializePhases();
-            
-            console.log("Public view initialized");
+            // Wait for WebSocket connection before initializing phases
+            onConnectionReady(() => {
+                console.log("WebSocket connected, initializing game phases");
+                initializePhases();
+                console.log("Public view initialized");
+            });
         });
 
         // Add window focus handler to reconnect if needed
