@@ -1,6 +1,6 @@
 // Socket.IO client configuration
 const SOCKET_SERVER_URL = window.location.hostname === 'localhost' 
-    ? 'ws://localhost:8080/ws'
+    ? (window.location.protocol === 'https:' ? 'wss://localhost:8080/ws' : 'ws://localhost:8080/ws')
     : 'wss://websocket.greatgriftoff.xyz:8080/ws';
 
 let socket = null;
@@ -21,16 +21,12 @@ function onConnectionReady(callback) {
 function createSocketConnection(type = 'public') {
     console.log('Initializing WebSocket connection...');
     console.log('Hostname:', window.location.hostname);
+    console.log('Protocol:', window.location.protocol);
     console.log('WebSocket URL:', SOCKET_SERVER_URL);
     console.log('Client type:', type);
     
     try {
-        // Ensure we're using the correct protocol based on the current page
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = SOCKET_SERVER_URL.replace(/^ws[s]?:/, protocol);
-        console.log('Final WebSocket URL:', wsUrl);
-        
-        socket = new WebSocket(`${wsUrl}?type=${type}`);
+        socket = new WebSocket(`${SOCKET_SERVER_URL}?type=${type}`);
         console.log('WebSocket object created, readyState:', socket.readyState);
 
         socket.onopen = () => {
@@ -129,9 +125,9 @@ function startPolling(type) {
 
 async function fetchData(type) {
     try {
-        // Ensure we're using HTTPS for polling
+        // Ensure we're using HTTPS for polling when the page is loaded over HTTPS
         const pollingUrl = SOCKET_SERVER_URL
-            .replace(/^ws[s]?:/, 'https:')
+            .replace(/^ws[s]?:/, window.location.protocol === 'https:' ? 'https:' : 'http:')
             .replace(':8080', '');
         console.log('Polling URL:', pollingUrl);
         const response = await fetch(`${pollingUrl}/poll?type=${type}`);
