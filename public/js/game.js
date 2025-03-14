@@ -20,9 +20,10 @@ let gameState = {
 
 let gameMode = GAME_MODE.SETUP;
 let gameInterval = null;
+let socket = null;
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log("Document loaded, initializing game");
     
     // Ensure socket-client.js is loaded
@@ -31,11 +32,18 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    // Initialize game components that don't require WebSocket
-    initializeGameComponents();
+    // Initialize WebSocket first
+    socket = createSocketConnection('admin');
+    
+    // Wait for WebSocket connection before proceeding
+    onConnectionReady(() => {
+        console.log("WebSocket connected, initializing game components");
+        initializeGameComponents();
+        initializePhases();
+    });
 });
 
-// Initialize game components that don't require WebSocket
+// Initialize game components
 function initializeGameComponents() {
     // Make sure buy and sell buttons are enabled during setup
     const buyButton = document.getElementById('buyButton');
