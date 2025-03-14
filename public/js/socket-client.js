@@ -1,8 +1,10 @@
 // Socket.IO client configuration
-console.log('Loading socket-client.js v2');
+console.log('Loading socket-client.js v3');
 
-// Always use the Railway server for WebSocket connections
-const SOCKET_SERVER_URL = 'wss://greatgriftoff-websocket-production.up.railway.app/ws';
+// Determine WebSocket URL based on current protocol
+const SOCKET_SERVER_URL = window.location.protocol === 'https:' 
+    ? 'wss://greatgriftoff-websocket-production.up.railway.app/ws'
+    : 'ws://greatgriftoff-websocket-production.up.railway.app/ws';
 
 let socket = null;
 let pollingInterval = null;
