@@ -253,30 +253,36 @@
             pendingMarketImpacts: []
         };
 
+        // Initialize WebSocket connection
+        console.log('Initializing WebSocket connection...');
+        socket = createSocketConnection('admin');
+
         // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             console.log("Document loaded, initializing admin view");
             
-            // Initialize WebSocket connection
-            socket = createSocketConnection('admin');
-            
-            // Initialize the game
-            initializePhases();
-            
-            // Make sure buy and sell buttons are enabled during setup
-            document.getElementById('buyButton').disabled = false;
-            document.getElementById('sellButton').disabled = false;
-            
-            // Hide market status initially
-            document.getElementById('marketStatus').style.display = 'none';
-            
-            // Add event listeners
-            document.getElementById('startButton').addEventListener('click', startGame);
-            document.getElementById('addPlayerButton').addEventListener('click', addPlayer);
-            document.getElementById('buyButton').addEventListener('click', buyShares);
-            document.getElementById('sellButton').addEventListener('click', sellShares);
-            
-            console.log("Admin view initialized in setup mode");
+            // Wait for WebSocket connection before initializing
+            onConnectionReady(() => {
+                console.log("WebSocket connected, initializing admin view");
+                
+                // Initialize the game
+                initializePhases();
+                
+                // Make sure buy and sell buttons are enabled during setup
+                document.getElementById('buyButton').disabled = false;
+                document.getElementById('sellButton').disabled = false;
+                
+                // Hide market status initially
+                document.getElementById('marketStatus').style.display = 'none';
+                
+                // Add event listeners
+                document.getElementById('startButton').addEventListener('click', startGame);
+                document.getElementById('addPlayerButton').addEventListener('click', addPlayer);
+                document.getElementById('buyButton').addEventListener('click', buyShares);
+                document.getElementById('sellButton').addEventListener('click', sellShares);
+                
+                console.log("Admin view initialized in setup mode");
+            });
         });
         
         // Handle WebSocket messages
@@ -328,6 +334,7 @@
         window.onfocus = () => {
             if (!socket || socket.readyState !== WebSocket.OPEN) {
                 console.log('Window focused, checking connection...');
+                // Use the socket-client.js configuration
                 socket = createSocketConnection('admin');
             }
         };
