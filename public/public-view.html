@@ -228,38 +228,62 @@
     
     <!-- Load JavaScript files -->
     <script src="js/socket-client.js"></script>
-<script>
-    // Game state
-    let gameState = {
-        phase: 'Markets Closed',
-        timeRemaining: 60,
-        funds: [],
-        players: []
-    };
+    <script>
+        // Game state
+        let gameState = {
+            phase: 'Markets Closed',
+            timeRemaining: 60,
+            funds: [],
+            players: []
+        };
 
         // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("Document loaded, initializing public view");
+            console.log("Public view initialized");
             
-            // Initialize WebSocket connection using socket client
+            // Initialize WebSocket connection
+            console.log('Initializing WebSocket connection...');
             socket = createSocketConnection('public');
             
-            // Wait for WebSocket connection before initializing phases
+            // Wait for WebSocket connection before initializing
             onConnectionReady(() => {
-                console.log("WebSocket connected, initializing game phases");
+                console.log("WebSocket connected, initializing public view");
                 initializePhases();
                 console.log("Public view initialized");
             });
-    });
+        });
 
-    // Add window focus handler to reconnect if needed
-    window.onfocus = () => {
-            if (!socket || socket.readyState !== WebSocket.OPEN) {
-            console.log('Window focused, checking connection...');
-                socket = createSocketConnection('public');
+        // Handle WebSocket messages
+        function handleWebSocketMessage(data) {
+            console.log('Received WebSocket message:', data);
+            switch(data.type) {
+                case 'initialData':
+                    gameState = data;
+                    updateUI();
+                    break;
+                case 'fundsUpdate':
+                    gameState.funds = data.funds;
+                    updateFundsList();
+                    break;
+                case 'playerUpdate':
+                    handlePlayerUpdate(data.player);
+                    break;
+                case 'phaseUpdate':
+                    gameState.phase = data.phase;
+                    gameState.timeRemaining = data.timeRemaining;
+                    updatePhaseDisplay();
+                    break;
+            }
         }
-    };
-</script>
+
+        // Add window focus handler to reconnect if needed
+        window.onfocus = () => {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                console.log('Window focused, checking connection...');
+                socket = createSocketConnection('public');
+            }
+        };
+    </script>
 </body>
 </html>
 

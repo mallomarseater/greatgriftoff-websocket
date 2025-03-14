@@ -20,32 +20,52 @@ let gameState = {
 
 let gameMode = GAME_MODE.SETUP;
 let gameInterval = null;
+let socket = null;
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log("Document loaded, initializing game");
     
-    // Wait for WebSocket connection before initializing phases
+    // Ensure socket-client.js is loaded
+    if (typeof createSocketConnection !== 'function') {
+        console.error('socket-client.js must be loaded before game.js');
+        return;
+    }
+
+    // Initialize WebSocket first
+    socket = createSocketConnection('admin');
+    
+    // Wait for WebSocket connection before proceeding
     onConnectionReady(() => {
-        console.log("WebSocket connected, initializing game phases");
+        console.log("WebSocket connected, initializing game components");
+        initializeGameComponents();
         initializePhases();
-        
-        // Make sure buy and sell buttons are enabled during setup
-        document.getElementById('buyButton').disabled = false;
-        document.getElementById('sellButton').disabled = false;
-        
-        // Hide market status initially
-        document.getElementById('marketStatus').style.display = 'none';
-        
-        // Add event listeners
-        document.getElementById('startButton').addEventListener('click', startGame);
-        document.getElementById('addPlayerButton').addEventListener('click', addPlayer);
-        document.getElementById('buyButton').addEventListener('click', buyShares);
-        document.getElementById('sellButton').addEventListener('click', sellShares);
-        
-        console.log("Game initialized in setup mode");
     });
 });
+
+// Initialize game components
+function initializeGameComponents() {
+    // Make sure buy and sell buttons are enabled during setup
+    const buyButton = document.getElementById('buyButton');
+    const sellButton = document.getElementById('sellButton');
+    if (buyButton) buyButton.disabled = false;
+    if (sellButton) sellButton.disabled = false;
+    
+    // Hide market status initially
+    const marketStatus = document.getElementById('marketStatus');
+    if (marketStatus) marketStatus.style.display = 'none';
+    
+    // Add event listeners
+    const startButton = document.getElementById('startButton');
+    const addPlayerButton = document.getElementById('addPlayerButton');
+    
+    if (startButton) startButton.addEventListener('click', startGame);
+    if (addPlayerButton) addPlayerButton.addEventListener('click', addPlayer);
+    if (buyButton) buyButton.addEventListener('click', buyShares);
+    if (sellButton) sellButton.addEventListener('click', sellShares);
+    
+    console.log("Game initialized in setup mode");
+}
 
 function startGame() {
     console.log('Starting game...');
