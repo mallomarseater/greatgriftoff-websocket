@@ -41,7 +41,19 @@ app.use((req, res, next) => {
 
 // Add a health check endpoint
 app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok' });
+    res.status(200).json({ 
+        status: 'ok',
+        websocket_server: {
+            clients: wss.clients.size,
+            ready: wss.readyState === WebSocket.OPEN,
+        },
+        server_info: {
+            port: PORT,
+            host: HOST,
+            railway: isRailway ? 'Yes' : 'No',
+            environment: process.env.NODE_ENV
+        }
+    });
 });
 
 // Serve static files from the public directory
