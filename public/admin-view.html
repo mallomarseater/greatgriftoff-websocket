@@ -255,7 +255,7 @@
 
         // Initialize WebSocket connection
         console.log('Initializing WebSocket connection...');
-        socket = createSocketConnection('admin');
+        let socket = createSocketConnection('admin');
 
         // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
@@ -334,7 +334,6 @@
         window.onfocus = () => {
             if (!socket || socket.readyState !== WebSocket.OPEN) {
                 console.log('Window focused, checking connection...');
-                // Use the socket-client.js configuration
                 socket = createSocketConnection('admin');
             }
         };

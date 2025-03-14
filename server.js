@@ -22,9 +22,20 @@ if (isRailway) {
 
 // Enable CORS
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    const allowedOrigins = [
+        'https://www.greatgriftoff.xyz',
+        'https://greatgriftoff.xyz',
+        'https://greatgriftoff-websocket-production.up.railway.app',
+        'http://localhost:3000'
+    ];
+    
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+        res.header('Access-Control-Allow-Credentials', 'true');
+    }
     next();
 });
 
@@ -41,7 +52,8 @@ const wss = new WebSocket.Server({
     server,  // Use the existing server instance
     path: '/ws',
     perMessageDeflate: false,
-    host: '0.0.0.0'  // Explicitly bind to all interfaces
+    host: '0.0.0.0',  // Explicitly bind to all interfaces
+    clientTracking: true
 });
 
 // Store connected clients
@@ -224,7 +236,9 @@ function handleGameStateChange(type) {
 
 // WebSocket connection handling
 wss.on('connection', (ws, req) => {
-    console.log('New client connected');
+    console.log('New WebSocket connection attempt');
+    console.log('Request URL:', req.url);
+    console.log('Request headers:', req.headers);
     
     // Parse client type from URL
     const urlParams = new URLSearchParams(req.url.split('?')[1]);
@@ -242,6 +256,19 @@ wss.on('connection', (ws, req) => {
         clients.public = ws;
         console.log('Public client connected');
     }
+    
+    // Log when client disconnects
+    ws.on('close', () => {
+        console.log(`Client disconnected (${clientType})`);
+        if (clientType === 'admin') {
+            clients.admin = null;
+        } else if (clientType === 'player') {
+            clients.players.delete(ws);
+            console.log('Total players connected:', clients.players.size);
+        } else {
+            clients.public = null;
+        }
+    });
     
     // Send initial data
     ws.send(JSON.stringify({
@@ -310,21 +337,6 @@ wss.on('connection', (ws, req) => {
             }
         } catch (error) {
             console.error('Error handling message:', error);
-        }
-    });
-    
-    ws.on('close', () => {
-        console.log('Client disconnected');
-        if (clientType === 'admin') {
-            clients.admin = null;
-            console.log('Admin client removed');
-        } else if (clientType === 'player') {
-            clients.players.delete(ws);
-            console.log('Player client removed');
-            console.log('Remaining players:', clients.players.size);
-        } else if (clientType === 'public') {
-            clients.public = null;
-            console.log('Public client removed');
         }
     });
 });
