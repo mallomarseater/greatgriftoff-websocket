@@ -1,4 +1,7 @@
 // Socket.IO client configuration
+console.log('Loading socket-client.js v5 - FIXED VERSION');
+console.log('WebSocket URL:', 'wss://greatgriftoff-websocket-production.up.railway.app/ws');
+
 const SOCKET_SERVER_URL = 'wss://greatgriftoff-websocket-production.up.railway.app/ws';
 
 let socket = null;
