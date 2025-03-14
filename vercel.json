@@ -6,7 +6,7 @@
             "use": "@vercel/node"
         },
         {
-            "src": "public/**",
+            "src": "public/**/*",
             "use": "@vercel/static"
         }
     ],
@@ -18,37 +18,53 @@
     },
     "routes": [
         {
-            "src": "/js/(.*)",
-            "dest": "/public/js/$1",
+            "src": "/js/(.*)\\.js",
+            "dest": "/public/js/$1.js",
             "headers": {
-                "cache-control": "public, max-age=0, must-revalidate"
+                "cache-control": "no-cache, no-store, must-revalidate",
+                "pragma": "no-cache",
+                "expires": "0",
+                "content-type": "application/javascript; charset=utf-8"
             }
         },
         {
-            "src": "/css/(.*)",
-            "dest": "/public/css/$1",
+            "src": "/css/(.*)\\.css",
+            "dest": "/public/css/$1.css",
             "headers": {
-                "cache-control": "public, max-age=0, must-revalidate"
+                "cache-control": "public, max-age=0, must-revalidate",
+                "content-type": "text/css; charset=utf-8"
             }
         },
         {
             "src": "/images/(.*)",
-            "dest": "/public/images/$1"
+            "dest": "/public/images/$1",
+            "headers": {
+                "cache-control": "public, max-age=86400"
+            }
         },
         {
             "src": "/admin",
             "dest": "/public/admin-view.html",
             "headers": {
-                "cache-control": "public, max-age=0, must-revalidate"
+                "cache-control": "no-cache, no-store, must-revalidate",
+                "content-type": "text/html; charset=utf-8"
             }
         },
         {
             "src": "/order",
-            "dest": "/public/order-submit.html"
+            "dest": "/public/order-submit.html",
+            "headers": {
+                "cache-control": "no-cache, no-store, must-revalidate",
+                "content-type": "text/html; charset=utf-8"
+            }
         },
         {
             "src": "/",
-            "dest": "/public/public-view.html"
+            "dest": "/public/public-view.html",
+            "headers": {
+                "cache-control": "no-cache, no-store, must-revalidate",
+                "content-type": "text/html; charset=utf-8"
+            }
         },
         {
             "src": "/ws",
