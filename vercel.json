@@ -4,13 +4,6 @@
         {
             "src": "server.js",
             "use": "@vercel/node"
-        },
-        {
-            "src": "public/**/*",
-            "use": "@vercel/static",
-            "config": {
-                "zeroConfig": true
-            }
         }
     ],
     "functions": {
@@ -21,20 +14,20 @@
     },
     "routes": [
         {
+            "src": "/js/(.*)",
+            "dest": "/public/js/$1"
+        },
+        {
             "src": "/admin",
-            "dest": "/admin-view.html"
+            "dest": "/public/admin-view.html"
         },
         {
             "src": "/order",
-            "dest": "/order-submit.html"
+            "dest": "/public/order-submit.html"
         },
         {
             "src": "/",
-            "dest": "/public-view.html"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/public/$1"
+            "dest": "/public/public-view.html"
         },
         {
             "src": "/ws",

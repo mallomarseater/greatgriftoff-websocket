@@ -78,30 +78,30 @@
         <div id="connectionStatus" class="status disconnected">
             WebSocket Status: Disconnected
         </div>
-
+        
         <div class="game-state">
             <h2>Game State</h2>
             <p>Current Phase: <span id="currentPhase">Not started</span></p>
             <p>Time Remaining: <span id="timeRemaining">--:--</span></p>
             <p>Connected Players: <span id="playerCount">0</span></p>
         </div>
-
+        
         <div class="control-panel">
-            <h2>Game Controls</h2>
+        <h2>Game Controls</h2>
             <button id="startGameBtn" onclick="startGame()">Start Game</button>
             <button id="startOrderingBtn" onclick="startOrdering()">Start Ordering Phase</button>
             <button id="endOrderingBtn" onclick="endOrdering()">End Ordering Phase</button>
             <button id="startRevealBtn" onclick="startReveal()">Start Reveal Phase</button>
             <button id="endGameBtn" onclick="endGame()">End Game</button>
             <button id="resetGameBtn" onclick="resetGame()">Reset Game</button>
-        </div>
-
+    </div>
+    
         <div class="order-list">
             <h2>Orders</h2>
             <div id="ordersList"></div>
         </div>
     </div>
-
+    
     <script src="/js/socket-client.js"></script>
     <script src="/js/admin.js"></script>
 </body>
