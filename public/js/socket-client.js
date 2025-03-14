@@ -1,5 +1,5 @@
 // Socket.IO client configuration
-const SOCKET_SERVER_URL = window.location.hostname === 'localhost' 
+const SOCKET_SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`
     : 'wss://greatgriftoff-websocket-production.up.railway.app/ws';
 
