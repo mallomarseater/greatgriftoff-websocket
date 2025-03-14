@@ -25,27 +25,39 @@ let gameInterval = null;
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Document loaded, initializing game");
     
-    // Wait for WebSocket connection before initializing phases
-    onConnectionReady(() => {
-        console.log("WebSocket connected, initializing game phases");
-        initializePhases();
-        
-        // Make sure buy and sell buttons are enabled during setup
-        document.getElementById('buyButton').disabled = false;
-        document.getElementById('sellButton').disabled = false;
-        
-        // Hide market status initially
-        document.getElementById('marketStatus').style.display = 'none';
-        
-        // Add event listeners
-        document.getElementById('startButton').addEventListener('click', startGame);
-        document.getElementById('addPlayerButton').addEventListener('click', addPlayer);
-        document.getElementById('buyButton').addEventListener('click', buyShares);
-        document.getElementById('sellButton').addEventListener('click', sellShares);
-        
-        console.log("Game initialized in setup mode");
-    });
+    // Ensure socket-client.js is loaded
+    if (typeof createSocketConnection !== 'function') {
+        console.error('socket-client.js must be loaded before game.js');
+        return;
+    }
+
+    // Initialize game components that don't require WebSocket
+    initializeGameComponents();
 });
+
+// Initialize game components that don't require WebSocket
+function initializeGameComponents() {
+    // Make sure buy and sell buttons are enabled during setup
+    const buyButton = document.getElementById('buyButton');
+    const sellButton = document.getElementById('sellButton');
+    if (buyButton) buyButton.disabled = false;
+    if (sellButton) sellButton.disabled = false;
+    
+    // Hide market status initially
+    const marketStatus = document.getElementById('marketStatus');
+    if (marketStatus) marketStatus.style.display = 'none';
+    
+    // Add event listeners
+    const startButton = document.getElementById('startButton');
+    const addPlayerButton = document.getElementById('addPlayerButton');
+    
+    if (startButton) startButton.addEventListener('click', startGame);
+    if (addPlayerButton) addPlayerButton.addEventListener('click', addPlayer);
+    if (buyButton) buyButton.addEventListener('click', buyShares);
+    if (sellButton) sellButton.addEventListener('click', sellShares);
+    
+    console.log("Game initialized in setup mode");
+}
 
 function startGame() {
     console.log('Starting game...');

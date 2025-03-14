@@ -258,9 +258,25 @@
             console.log("Document loaded, initializing admin view");
             
             // Initialize WebSocket connection
+            if (typeof createSocketConnection !== 'function') {
+                console.error('socket-client.js not loaded properly');
+                return;
+            }
+            
             console.log('Initializing WebSocket connection...');
+            initializeWebSocketConnection();
+        });
+
+        function initializeWebSocketConnection() {
+            // Create socket connection
             socket = createSocketConnection('admin');
             
+            if (!socket) {
+                console.error('Failed to create WebSocket connection');
+                setTimeout(initializeWebSocketConnection, 1000); // Retry after 1 second
+                return;
+            }
+
             // Wait for WebSocket connection before initializing
             onConnectionReady(() => {
                 console.log("WebSocket connected, initializing admin view");
@@ -283,7 +299,7 @@
                 
                 console.log("Admin view initialized in setup mode");
             });
-        });
+        }
         
         // Handle WebSocket messages
         function handleWebSocketMessage(data) {
