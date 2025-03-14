@@ -18,6 +18,39 @@
     },
     "routes": [
         {
+            "src": "/js/(.*)",
+            "dest": "/public/js/$1",
+            "headers": {
+                "cache-control": "public, max-age=0, must-revalidate"
+            }
+        },
+        {
+            "src": "/css/(.*)",
+            "dest": "/public/css/$1",
+            "headers": {
+                "cache-control": "public, max-age=0, must-revalidate"
+            }
+        },
+        {
+            "src": "/images/(.*)",
+            "dest": "/public/images/$1"
+        },
+        {
+            "src": "/admin",
+            "dest": "/public/admin-view.html",
+            "headers": {
+                "cache-control": "public, max-age=0, must-revalidate"
+            }
+        },
+        {
+            "src": "/order",
+            "dest": "/public/order-submit.html"
+        },
+        {
+            "src": "/",
+            "dest": "/public/public-view.html"
+        },
+        {
             "src": "/ws",
             "dest": "https://greatgriftoff-websocket-production.up.railway.app/ws",
             "headers": {
@@ -29,30 +62,6 @@
                 "Sec-WebSocket-Version": "13",
                 "Sec-WebSocket-Key": "$http_sec_websocket_key"
             }
-        },
-        {
-            "src": "/js/(.*)",
-            "dest": "/public/js/$1"
-        },
-        {
-            "src": "/css/(.*)",
-            "dest": "/public/css/$1"
-        },
-        {
-            "src": "/images/(.*)",
-            "dest": "/public/images/$1"
-        },
-        {
-            "src": "/admin",
-            "dest": "/public/admin-view.html"
-        },
-        {
-            "src": "/order",
-            "dest": "/public/order-submit.html"
-        },
-        {
-            "src": "/",
-            "dest": "/public/public-view.html"
         }
     ],
     "env": {
