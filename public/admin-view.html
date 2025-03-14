@@ -235,7 +235,7 @@
     </div>
     
     <!-- Load JavaScript files -->
-    <script src="js/socket-client.js"></script>
+    <script src="js/socket-client.js?v=2"></script>
     <script src="js/game.js"></script>
     <script src="js/funds.js"></script>
     <script src="js/players.js"></script>
@@ -594,9 +594,17 @@
                     timeRemaining: timeRemaining
                 }));
             } else {
-                console.warn('WebSocket not connected, cannot update phase');
-                // Attempt to reconnect
+                console.warn('WebSocket not connected, attempting to reconnect...');
+                // Create new connection and wait for it to be ready
                 socket = createSocketConnection('admin');
+                onConnectionReady(() => {
+                    console.log('WebSocket reconnected, sending phase update');
+                    socket.send(JSON.stringify({
+                        type: 'updatePhase',
+                        phase: phase,
+                        timeRemaining: timeRemaining
+                    }));
+                });
             }
         }
 
