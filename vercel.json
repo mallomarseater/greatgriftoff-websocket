@@ -7,7 +7,10 @@
         },
         {
             "src": "public/**/*",
-            "use": "@vercel/static"
+            "use": "@vercel/static",
+            "config": {
+                "zeroConfig": true
+            }
         }
     ],
     "functions": {
@@ -19,15 +22,19 @@
     "routes": [
         {
             "src": "/admin",
-            "dest": "/public/admin-view.html"
+            "dest": "/admin-view.html"
         },
         {
             "src": "/order",
-            "dest": "/public/order-submit.html"
+            "dest": "/order-submit.html"
         },
         {
             "src": "/",
-            "dest": "/public/public-view.html"
+            "dest": "/public-view.html"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/public/$1"
         },
         {
             "src": "/ws",
