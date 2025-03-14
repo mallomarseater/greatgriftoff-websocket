@@ -1,5 +1,5 @@
 // Socket.IO client configuration
-console.log('Loading socket-client.js v5 - FIXED VERSION');
+console.log('Loading socket-client.js v6 - FIXED VERSION');
 console.log('WebSocket URL:', 'wss://greatgriftoff-websocket-production.up.railway.app/ws');
 
 const SOCKET_SERVER_URL = 'wss://greatgriftoff-websocket-production.up.railway.app/ws';
@@ -82,7 +82,6 @@ function createSocketConnection(type = 'public') {
     console.log('Protocol:', window.location.protocol);
     console.log('WebSocket URL:', SOCKET_SERVER_URL);
     console.log('Client type:', type);
-    console.log('Environment:', process.env.NODE_ENV);
     
     try {
         // Use the configured URL directly since it's already set up for the correct protocol
@@ -98,108 +97,51 @@ function createSocketConnection(type = 'public') {
             reconnectAttempts = 0; // Reset reconnect attempts on successful connection
             // Request initial data
             socket.send(JSON.stringify({ type: 'getInitialData' }));
-            // Clear polling if it was active
-            if (pollingInterval) {
-                clearInterval(pollingInterval);
-                pollingInterval = null;
-            }
             // Process any queued messages
             processMessageQueue();
-            // Call all pending ready callbacks
+            // Call any pending callbacks
             connectionReadyCallbacks.forEach(callback => callback());
             connectionReadyCallbacks = [];
         };
 
-        socket.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                console.log('Received WebSocket message:', data);
-                handleWebSocketMessage(data);
-            } catch (error) {
-                console.error('Error parsing WebSocket message:', error);
+        socket.onclose = (event) => {
+            console.log('WebSocket connection closed:', event);
+            if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                console.log(`Attempting to reconnect (${reconnectAttempts + 1}/${MAX_RECONNECT_ATTEMPTS})...`);
+                setTimeout(() => {
+                    reconnectAttempts++;
+                    createSocketConnection(type);
+                }, RECONNECT_DELAY);
+            } else {
+                console.error('Max reconnection attempts reached');
             }
         };
 
         socket.onerror = (error) => {
             handleWebSocketError(error, type);
-            
-            if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-                reconnectAttempts++;
-                console.log(`Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
-                setTimeout(() => {
-                    createSocketConnection(type);
-                }, RECONNECT_DELAY);
-            } else {
-                console.log('Max reconnection attempts reached, falling back to polling');
-                startPolling(type);
+        };
+
+        socket.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                console.log('Received message:', data);
+                if (window.handleWebSocketMessage) {
+                    window.handleWebSocketMessage(data);
+                } else {
+                    console.warn('No message handler defined');
+                }
+            } catch (error) {
+                console.error('Error processing message:', error);
             }
         };
 
-        socket.onclose = (event) => {
-            console.log('WebSocket connection closed:', {
-                code: event.code,
-                reason: event.reason,
-                wasClean: event.wasClean,
-                timestamp: new Date().toISOString(),
-                clientType: type
-            });
-
-            // Log specific close codes
-            switch (event.code) {
-                case 1000:
-                    console.log('Normal closure');
-                    break;
-                case 1001:
-                    console.log('Going away');
-                    break;
-                case 1002:
-                    console.log('Protocol error');
-                    break;
-                case 1003:
-                    console.log('Unsupported data');
-                    break;
-                case 1006:
-                    console.log('Abnormal closure');
-                    break;
-                case 1011:
-                    console.log('Server error');
-                    break;
-                case 1015:
-                    console.log('TLS handshake');
-                    break;
-                default:
-                    console.log('Unknown close code');
-            }
-            
-            if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-                reconnectAttempts++;
-                console.log(`Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
-                setTimeout(() => {
-                    createSocketConnection(type);
-                }, RECONNECT_DELAY);
-            } else {
-                console.log('Max reconnection attempts reached, falling back to polling');
-                startPolling(type);
-            }
-        };
+        return socket;
     } catch (error) {
-        console.error('Failed to create WebSocket connection:', error);
+        console.error('Error creating WebSocket connection:', error);
         handleWebSocketError(error, type);
-        
-        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-            reconnectAttempts++;
-            console.log(`Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
-            setTimeout(() => {
-                createSocketConnection(type);
-            }, RECONNECT_DELAY);
-        } else {
-            console.log('Max reconnection attempts reached, falling back to polling');
-            startPolling(type);
-        }
+        return null;
     }
-
-    return socket;
-} 
+}
 
 function startPolling(type) {
     console.log('Starting polling fallback...');
@@ -232,7 +174,7 @@ async function fetchData(type) {
     }
 }
 
-// Export functions
+// Export functions to global scope
 window.createSocketConnection = createSocketConnection;
 window.onConnectionReady = onConnectionReady;
 window.sendMessage = sendMessage; 
