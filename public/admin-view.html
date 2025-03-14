@@ -253,13 +253,13 @@
             pendingMarketImpacts: []
         };
 
-        // Initialize WebSocket connection
-        console.log('Initializing WebSocket connection...');
-        let socket = createSocketConnection('admin');
-
         // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             console.log("Document loaded, initializing admin view");
+            
+            // Initialize WebSocket connection
+            console.log('Initializing WebSocket connection...');
+            socket = createSocketConnection('admin');
             
             // Wait for WebSocket connection before initializing
             onConnectionReady(() => {

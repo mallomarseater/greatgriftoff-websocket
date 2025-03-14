@@ -1,6 +1,6 @@
 // Socket.IO client configuration
 const SOCKET_SERVER_URL = window.location.hostname === 'localhost' 
-    ? (window.location.protocol === 'https:' ? 'wss://localhost:8080/ws' : 'ws://localhost:8080/ws')
+    ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`
     : 'wss://greatgriftoff-websocket-production.up.railway.app/ws';
 
 let socket = null;
