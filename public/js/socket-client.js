@@ -1,7 +1,8 @@
 // Socket.IO client configuration
-const SOCKET_SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`
-    : 'wss://greatgriftoff-websocket-production.up.railway.app/ws';
+console.log('Loading socket-client.js v2');
+
+// Always use the Railway server for WebSocket connections
+const SOCKET_SERVER_URL = 'wss://greatgriftoff-websocket-production.up.railway.app/ws';
 
 let socket = null;
 let pollingInterval = null;
