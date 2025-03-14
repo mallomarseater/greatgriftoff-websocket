@@ -1,75 +1,191 @@
 // Game state
 let gameState = {
-    phase: 'Markets Closed',
-    timeRemaining: 60,
-    funds: [],
+    phase: 'Not Started',
+    timeRemaining: 0,
     players: [],
-    pendingMarketImpacts: []
+    stocks: [],
+    orders: []
 };
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Admin view initialized");
+    initializeWebSocket();
+    initializeEventListeners();
+});
+
+// Initialize WebSocket connection
+function initializeWebSocket() {
+    console.log('Initializing WebSocket connection...');
+    socket = createSocketConnection('admin');
+    
+    // Wait for WebSocket connection before initializing
+    onConnectionReady(() => {
+        console.log("WebSocket connected, initializing admin view");
+        updateConnectionStatus(true);
+    });
+}
+
+// Update connection status display
+function updateConnectionStatus(connected) {
+    const statusElement = document.getElementById('connectionStatus');
+    if (connected) {
+        statusElement.className = 'status connected';
+        statusElement.textContent = 'WebSocket Status: Connected';
+    } else {
+        statusElement.className = 'status disconnected';
+        statusElement.textContent = 'WebSocket Status: Disconnected';
+    }
+}
+
+// Initialize event listeners
+function initializeEventListeners() {
+    // Add window focus handler to reconnect if needed
+    window.onfocus = () => {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+            console.log('Window focused, checking connection...');
+            initializeWebSocket();
+        }
+    };
+}
 
 // Handle WebSocket messages
 function handleWebSocketMessage(data) {
     console.log('Received WebSocket message:', data);
     switch(data.type) {
-        case 'initialData':
-            gameState = data;
+        case 'initialState':
+            gameState = data.state;
             updateUI();
-            break;
-        case 'fundsUpdate':
-            gameState.funds = data.funds;
-            updateFundsList();
-            break;
-        case 'playerUpdate':
-            handlePlayerUpdate(data.player);
             break;
         case 'phaseUpdate':
             gameState.phase = data.phase;
             gameState.timeRemaining = data.timeRemaining;
             updatePhaseDisplay();
             break;
-        case 'newOrder':
-            handleNewOrder(data.order);
+        case 'playerUpdate':
+            updatePlayers(data.players);
+            break;
+        case 'stockUpdate':
+            updateStocks(data.stocks);
+            break;
+        case 'orderUpdate':
+            updateOrders(data.orders);
             break;
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', async function() {
-    console.log("Document loaded, initializing admin view");
-    
-    // Ensure socket-client.js is loaded
-    if (typeof createSocketConnection !== 'function') {
-        console.error('socket-client.js must be loaded before admin.js');
-        return;
-    }
+// Update the entire UI
+function updateUI() {
+    updatePhaseDisplay();
+    updatePlayers(gameState.players);
+    updateStocks(gameState.stocks);
+    updateOrders(gameState.orders);
+    updateButtonStates();
+}
 
-    // Initialize WebSocket first
-    socket = createSocketConnection('admin');
-    
-    // Wait for WebSocket connection before proceeding
-    onConnectionReady(() => {
-        console.log("WebSocket connected, initializing admin components");
-        initializeAdminComponents();
-    });
+// Update phase display
+function updatePhaseDisplay() {
+    document.getElementById('currentPhase').textContent = gameState.phase;
+    document.getElementById('timeRemaining').textContent = formatTime(gameState.timeRemaining);
+}
 
-    // Add QR code updating function
-    document.getElementById('updateQrBtn').addEventListener('click', function() {
-        const buyUrl = document.getElementById('buyFormUrl').value.trim();
-        const sellUrl = document.getElementById('sellFormUrl').value.trim();
-        
-        if (buyUrl) localStorage.setItem('buyFormUrl', buyUrl);
-        if (sellUrl) localStorage.setItem('sellFormUrl', sellUrl);
-        
-        alert('QR codes updated on public view!');
-    });
+// Format time as MM:SS
+function formatTime(seconds) {
+    if (!seconds && seconds !== 0) return '--:--';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
 
-    // Add window focus handler to reconnect if needed
-    window.onfocus = () => {
-        if (!socket || socket.readyState !== WebSocket.OPEN) {
-            console.log('Window focused, checking connection...');
-            socket = createSocketConnection('admin');
-        }
+// Update players display
+function updatePlayers(players) {
+    const playerCount = document.getElementById('playerCount');
+    playerCount.textContent = players.length;
+}
+
+// Update stocks display
+function updateStocks(stocks) {
+    gameState.stocks = stocks;
+}
+
+// Update orders display
+function updateOrders(orders) {
+    const ordersList = document.getElementById('ordersList');
+    ordersList.innerHTML = orders.map(order => `
+        <div class="order-item">
+            <strong>${order.playerName}</strong> wants to ${order.type} 
+            ${order.quantity} shares of ${order.stockName} 
+            at $${order.price.toFixed(2)}
+        </div>
+    `).join('');
+}
+
+// Update button states based on current phase
+function updateButtonStates() {
+    const buttons = {
+        startGameBtn: gameState.phase === 'Not Started',
+        startOrderingBtn: gameState.phase === 'Game Started',
+        endOrderingBtn: gameState.phase === 'Ordering',
+        startRevealBtn: gameState.phase === 'Ordering Ended',
+        endGameBtn: ['Game Started', 'Ordering', 'Reveal'].includes(gameState.phase),
+        resetGameBtn: true
     };
+
+    Object.entries(buttons).forEach(([id, enabled]) => {
+        const button = document.getElementById(id);
+        if (button) {
+            button.disabled = !enabled;
+        }
+    });
+}
+
+// Game control functions
+function startGame() {
+    sendCommand('startGame');
+}
+
+function startOrdering() {
+    sendCommand('startOrdering');
+}
+
+function endOrdering() {
+    sendCommand('endOrdering');
+}
+
+function startReveal() {
+    sendCommand('startReveal');
+}
+
+function endGame() {
+    sendCommand('endGame');
+}
+
+function resetGame() {
+    sendCommand('resetGame');
+}
+
+// Send command to server
+function sendCommand(command) {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+            type: 'command',
+            command: command
+        }));
+    } else {
+        console.error('WebSocket not connected');
+        updateConnectionStatus(false);
+    }
+}
+
+// Add QR code updating function
+document.getElementById('updateQrBtn').addEventListener('click', function() {
+    const buyUrl = document.getElementById('buyFormUrl').value.trim();
+    const sellUrl = document.getElementById('sellFormUrl').value.trim();
+    
+    if (buyUrl) localStorage.setItem('buyFormUrl', buyUrl);
+    if (sellUrl) localStorage.setItem('sellFormUrl', sellUrl);
+    
+    alert('QR codes updated on public view!');
 });
 
 // Initialize admin components

@@ -3,18 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit Order - Investment Game</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>Great Grift Off - Submit Order</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .status {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .error {
+            color: #dc3545;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        .success {
+            color: #28a745;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        .market-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+        .stock-price {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
 </head>
 <body>
-    <div class="panel">
+    <div class="container">
         <h1>Submit Order</h1>
-        <div id="orderForm">
+        
+        <div id="connectionStatus" class="status disconnected">
+            WebSocket Status: Disconnected
+        </div>
+
+        <div class="market-info">
+            <h2>Current Market Status</h2>
+            <p>Phase: <span id="currentPhase">Not Started</span></p>
+            <p>Time Remaining: <span id="timeRemaining">--:--</span></p>
+        </div>
+
+        <form id="orderForm">
             <div class="form-group">
-                <label for="playerName">Player Name:</label>
+                <label for="playerName">Your Name:</label>
                 <input type="text" id="playerName" required>
             </div>
-            
+
             <div class="form-group">
                 <label for="orderType">Order Type:</label>
                 <select id="orderType" required>
@@ -22,127 +118,29 @@
                     <option value="sell">Sell</option>
                 </select>
             </div>
-            
+
             <div class="form-group">
-                <label for="fundSelect">Fund:</label>
-                <select id="fundSelect" required></select>
+                <label for="stock">Stock:</label>
+                <select id="stock" required>
+                    <!-- Will be populated via JavaScript -->
+                </select>
+                <div class="stock-info">
+                    Current Price: <span id="currentPrice" class="stock-price">--</span>
+                </div>
             </div>
-            
+
             <div class="form-group">
-                <label for="shares">Number of Shares:</label>
-                <input type="number" id="shares" min="1" value="1" required>
+                <label for="quantity">Quantity:</label>
+                <input type="number" id="quantity" min="1" value="1" required>
             </div>
-            
-            <button onclick="submitOrder()">Submit Order</button>
-        </div>
-        
-        <div id="status" style="margin-top: 20px;"></div>
+
+            <button type="submit" id="submitButton">Submit Order</button>
+        </form>
+
+        <div id="orderStatus"></div>
     </div>
 
     <script src="js/socket-client.js"></script>
-    <script>
-        // Game state
-        let gameState = {
-            funds: [],
-            phase: 'Markets Closed'
-        };
-
-        // Initialize WebSocket connection
-        let socket = createSocketConnection('player');
-        
-        // Handle WebSocket messages
-        function handleWebSocketMessage(data) {
-            switch(data.type) {
-                case 'initialData':
-                    gameState = data;
-                    updateUI();
-                    break;
-                case 'fundsUpdate':
-                    gameState.funds = data.funds;
-                    updateFundsList();
-                    break;
-                case 'phaseUpdate':
-                    gameState.phase = data.phase;
-                    break;
-                case 'orderResponse':
-                    handleOrderResponse(data);
-                    break;
-            }
-        }
-
-        // Add window focus handler to reconnect if needed
-        window.onfocus = () => {
-            if (!socket || socket.readyState !== WebSocket.OPEN) {
-                console.log('Window focused, checking connection...');
-                socket = createSocketConnection('player');
-            }
-        };
-
-        // Update UI with current game state
-        function updateUI() {
-            updateFundsList();
-        }
-
-        // Update funds list in dropdown
-        function updateFundsList() {
-            const fundSelect = document.getElementById('fundSelect');
-            fundSelect.innerHTML = gameState.funds.map(fund => 
-                `<option value="${fund.id}">${fund.name} ($${fund.price.toFixed(2)})</option>`
-            ).join('');
-        }
-
-        // Submit order
-        function submitOrder() {
-            const playerName = document.getElementById('playerName').value.trim();
-            const orderType = document.getElementById('orderType').value;
-            const fundId = document.getElementById('fundSelect').value;
-            const shares = parseInt(document.getElementById('shares').value);
-            
-            if (!playerName || !orderType || !fundId || !shares) {
-                updateStatus('Please fill in all fields', 'error');
-                return;
-            }
-            
-            const order = {
-                playerName: playerName,
-                orderType: orderType,
-                fundId: fundId,
-                shares: shares
-            };
-            
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({
-                    type: 'order',
-                    order: order
-                }));
-                updateStatus('Order submitted, waiting for confirmation...');
-            } else {
-                updateStatus('Not connected to server', 'error');
-            }
-        }
-
-        // Handle order response
-        function handleOrderResponse(data) {
-            if (data.success) {
-                updateStatus('Order submitted successfully!', 'success');
-                // Clear form
-                document.getElementById('shares').value = '1';
-            } else {
-                updateStatus(data.message || 'Order submission failed', 'error');
-            }
-        }
-
-        // Update status message
-        function updateStatus(message, type = 'info') {
-            const status = document.getElementById('status');
-            status.textContent = message;
-            status.className = 'status-' + type;
-        }
-
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            updateUI();
-        });
-    </script>
+    <script src="js/order.js"></script>
 </body>
 </html> 
